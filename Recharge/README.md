@@ -1,7 +1,7 @@
 ESOAutoRecharge
 =============
 
-An addon for The Elder Scrolls Online which enables you to fully recharge your equipped weapons using a slash command. 
+An addon for The Elder Scrolls Online which lets you fully recharge your equipped weapons using a slash command. 
 
 **Important Note: This is does not currently use soul gems in an optimum strategy! The current strategy is use soul gems in the order of worst to best (e.g lesser soul gems will be used before common).**
 
