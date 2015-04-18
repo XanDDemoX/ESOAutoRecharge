@@ -1,5 +1,5 @@
 -----------------------------------
---  Auto Recharge Version 0.0.1  --
+--  Auto Recharge Version 0.0.2  --
 -----------------------------------
 
 local function round(value,places)
@@ -58,7 +58,7 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	
 	local charge,maxcharge = GetChargeInfoForItem(bagId,slotIndex)
 
-	if charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) >= minPercent) then return 0 end
+	if charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) > minPercent) then return 0 end
 
 	local oldcharge = charge
 	
