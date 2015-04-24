@@ -97,8 +97,8 @@ end
 local function GetEquipSlotText(slot)
 	if slot == EQUIP_SLOT_MAIN_HAND then return "Main Hand"
 	elseif slot == EQUIP_SLOT_OFF_HAND then return "Off Hand"
-	elseif slot == EQUIP_SLOT_BACKUP_MAIN then return "Main Hand - Backup"
-	elseif slot == EQUIP_SLOT_BACKUP_OFF then return "Off Hand - Backup" 
+	elseif slot == EQUIP_SLOT_BACKUP_MAIN then return "Backup Main Hand"
+	elseif slot == EQUIP_SLOT_BACKUP_OFF then return "Backup Off Hand" 
 	end
 end
 
