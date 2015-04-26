@@ -23,9 +23,9 @@ For example:
 Usage
 =============
 
-/rc 	- Attempts to recharge the currently equipped primary and secondary weapons.
-		- When weapons are recharged displays the hand and chagre percentage refilled.
-		- When weapons are not recharged displays the hand and charge percentage remaining.
+/rc 		- Attempts to recharge the currently equipped primary and secondary weapons.
+			- When weapons are recharged displays the hand and chagre percentage refilled.
+			- When weapons are not recharged displays the hand and charge percentage remaining.
 	
 /rc on  	- Enable automatic equipped weapons recharging.
 /rc +
