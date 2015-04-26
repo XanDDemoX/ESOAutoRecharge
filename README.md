@@ -25,17 +25,11 @@ For example:
 Usage
 =============
 
-/rc 		- Attempts to recharge the currently equipped primary and secondary weapons. 
-
-
-/rc on  	- Enable automatic equipped weapons recharging.
-
-/rc +
-
-
-/rc off 	- Disable automatic equipped weapons recharging.
-
-/rc -
+* /rc 		- Attempts to recharge the currently equipped primary and secondary weapons. 
+* /rc on  	- Enable automatic equipped weapons recharging.
+* /rc +
+* /rc off 	- Disable automatic equipped weapons recharging.
+* /rc -
 
 DISCLAIMER
 =============
