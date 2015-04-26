@@ -1,6 +1,10 @@
 -----------------------------------
---  Auto Recharge Version 0.0.2  --
+--  Auto Recharge Version 0.0.3  --
 -----------------------------------
+
+local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
+local _prefix = "[AutoRecharge]: "
+local _settings = { enabled = true }
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -49,6 +53,14 @@ local function GetSoulGems(bagId)
 	return tbl
 end
 
+local function IsItemAboveThreshold(bagId,slotIndex,minPercent)
+
+	local charge,maxcharge = GetChargeInfoForItem(bagId,slotIndex)
+	local isAbove = charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) > minPercent)
+	
+	return isAbove,charge,maxcharge
+end
+
 local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	
 	local gem
@@ -56,9 +68,9 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	local recharged = false
 	local total = 0
 	
-	local charge,maxcharge = GetChargeInfoForItem(bagId,slotIndex)
+	local isAbove,charge,maxcharge = IsItemAboveThreshold(bagId,slotIndex,minPercent)
 
-	if charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) > minPercent) then return 0 end
+	if isAbove == true then return 0 end
 
 	local oldcharge = charge
 	
@@ -102,18 +114,19 @@ local function GetEquipSlotText(slot)
 	end
 end
 
-local function RechargeEquipped()
+local function RechargeEquipped(silentNothing)
+
+	silentNothing = silentNothing or false 
 
 	local gems = GetSoulGems(BAG_BACKPACK)
 	if #gems == 0 then return end
 	
-	local slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
-	
+
 	local total = 0 
 	
 	local str
 	
-	for i,v in ipairs(slots) do
+	for i,v in ipairs(_slots) do
 		total = RechargeItem(BAG_WORN,v,gems,0)
 		if total > 0 then
 			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(total,2)).." % filled)"
@@ -124,7 +137,7 @@ local function RechargeEquipped()
 		
 		local charge,maxcharge,remain
 		
-		for i,v in ipairs(slots) do
+		for i,v in ipairs(_slots) do
 			
 			charge,maxcharge = GetChargeInfoForItem(BAG_WORN,v)
 			
@@ -132,7 +145,9 @@ local function RechargeEquipped()
 
 				remain = (charge / maxcharge) * 100
 				
-				str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(remain,2)).." % remaining)"
+				if silentNothing == false then 
+					str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(remain,2)).." % remaining)"
+				end
 				
 			end 
 		end
@@ -140,17 +155,42 @@ local function RechargeEquipped()
 	end
 	
 	if str ~= nil then
-		d(str)
-	else
+		d(_prefix..str)
+	elseif silentNothing == false then
 		d("No rechargeable weapons equipped.")
 	end
 end
 
+local function Recharge_CombatStateChanged(eventCode, inCombat)
+	if inCombat == false and _settings.enabled == true then
+		RechargeEquipped(true)
+	end
+end
+
+local isOnString(str)
+	str = string.lower(str)
+	return str == "+" or str == "on"
+end
+
+local isOffString(str)
+	str = string.lower(str)
+	return str == "-" or str == "off"
+end
 
 local function Initialise()
 
-	SLASH_COMMANDS["/rc"] = function()
-		RechargeEquipped()
+	EVENT_MANAGER:RegisterForEvent("Recharge_CombatStateChanged",EVENT_PLAYER_COMBAT_STATE,Recharge_CombatStateChanged)
+
+	SLASH_COMMANDS["/rc"] = function(arg)
+		if arg == nil or arg == "" then
+			RechargeEquipped()
+		elseif isOnString(arg) then
+			_settings.enabled = true
+			d(_prefix.."Enabled")
+		elseif isOffString(arg) then
+			_settings.enabled = false
+			d(_prefix.."Disabled")
+		end
 	end
 
 end
@@ -160,6 +200,8 @@ local function Recharge_Loaded(eventCode, addOnName)
 	if(addOnName ~= "Recharge") then
         return
     end
+	
+	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "1", "", _settings, nil)
 	
 	Initialise()
 	

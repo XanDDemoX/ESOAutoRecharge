@@ -1,5 +1,6 @@
-## Title: Recharge
-## Version 0.0.2
+## Title: Auto Recharge v0.0.3
+## Version 0.0.3
 ## APIVersion: 100011
+## SavedVariables: AutoRecharge_SavedVariables
 
 Recharge.lua
