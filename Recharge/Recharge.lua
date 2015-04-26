@@ -162,17 +162,17 @@ local function RechargeEquipped(silentNothing)
 end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if inCombat == false and _settings.enabled == true then
+	if _settings.enabled == true then
 		RechargeEquipped(true)
 	end
 end
 
-local isOnString(str)
+local function isOnString(str)
 	str = string.lower(str)
 	return str == "+" or str == "on"
 end
 
-local isOffString(str)
+local function isOffString(str)
 	str = string.lower(str)
 	return str == "-" or str == "off"
 end
