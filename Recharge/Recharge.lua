@@ -5,6 +5,7 @@
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
 local _settings = { enabled = true }
+local _delay = 250
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -73,35 +74,30 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	if isAbove == true then return 0 end
 
 	local oldcharge = charge
-	
-	repeat 
-	
-		if gem == nil then
-			gem = gems[#gems]
+		
+	if gem == nil then
+		gem = gems[#gems]
+	end
+
+	if gem ~= nil then
+
+		local amount = GetAmountSoulGemWouldChargeItem(bagId,slotIndex,gem.bag,gem.index)
+		
+		ChargeItemWithSoulGem(bagId,slotIndex,gem.bag,gem.index)
+		
+		gem.size = gem.size - 1 
+		
+		if gem.size < 1 then
+			table.remove(gems)
 		end
-
-		if gem ~= nil then
-
-			local amount = GetAmountSoulGemWouldChargeItem(bagId,slotIndex,gem.bag,gem.index)
-			
-			ChargeItemWithSoulGem(bagId,slotIndex,gem.bag,gem.index)
-			
-			gem.size = gem.size - 1 
-			
-			if gem.size < 1 then
-				table.remove(gems)
-			end
-			
-			if (charge + amount) < maxcharge then
-				charge = charge + amount
-			else
-				charge = maxcharge
-				break
-			end
-			
+		
+		if (charge + amount) < maxcharge then
+			charge = charge + amount
+		else
+			charge = maxcharge
 		end
-
-	until gem == nil or charge >= maxcharge
+		
+	end
 	
 	return ((charge - oldcharge) / maxcharge) * 100
 end
