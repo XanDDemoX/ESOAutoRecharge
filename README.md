@@ -10,6 +10,10 @@ When weapons are recharged the hand and charge percentage refilled is displayed.
 Installation
 =============
 
+1. Download Zip by clicking the "Download Zip" button on the right
+2. Open Zip and go into the folder named "EsoAutoRecharge-master"
+3. Extract or copy the "Recharge" folder into your addons folder:
+
 Place the "Recharge" folder in your addons folder:
 
 "Documents\Elder Scrolls Online\live\Addons"
