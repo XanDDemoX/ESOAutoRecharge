@@ -1,4 +1,5 @@
 ## Title: Auto Recharge v0.0.4
+## Author: XanDDemoX
 ## Version 0.0.4
 ## APIVersion: 100011
 ## SavedVariables: AutoRecharge_SavedVariables
