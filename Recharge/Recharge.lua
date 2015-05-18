@@ -111,30 +111,8 @@ local function GetEquipSlotText(slot)
 	end
 end
 
---The Master's Bow					ItemID: 55937
---The Master's Dagger				ItemID: 55936
---The Master's Inferno Staff		ItemID: 55938
---The Master's Ice Staff			ItemID: 57448
---The Master's Restoration Staff	ItemID: 55939
---The Master's Lightning Staff		ItemID: 57454
---The Master's Greatsword			ItemID: 55934
---The Master's Sword				ItemID: 55935
-
-local _masterWeaponIds = {55937,55936,55938,57448,55939,57454,55934,55935}
-
-local function IsMasterWeapon(itemId)
-	for i,id in ipairs(_masterWeaponIds) do 
-		if itemId == id then
-			return true
-		end 
-	end 
-	return false 
-end
-
-
 local function IsItemChargable(bagId,slotIndex)
-	local id = GetItemInstanceId(bagId,slotIndex)
-	return not IsMasterWeapon(id)
+	return true
 end 
 
 local function RechargeEquipped(silentNothing)

@@ -32,6 +32,8 @@ Usage
 
 Change Log
 =============
+* **Version 1.0.2**
+  * Disabled master weapon exclusion.
 * **Version 1.0.1**
   * Added master weapon exclusion.
 * **Version 0.0.6**
