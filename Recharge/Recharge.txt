@@ -1,6 +1,6 @@
-## Title: Auto Recharge v0.0.5
+## Title: Auto Recharge v0.0.6
 ## Author: XanDDemoX
-## Version 0.0.5
+## Version 0.0.6
 ## APIVersion: 100011
 ## SavedVariables: AutoRecharge_SavedVariables
 

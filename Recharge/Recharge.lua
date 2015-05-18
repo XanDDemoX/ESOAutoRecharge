@@ -8,6 +8,11 @@ local function round(value,places)
 	return math.floor(value * s + 0.5) / s
 end
 
+local function trim(str)
+	if str == nil or str == "" then return str end 
+	return (str:gsub("^%s*(.-)%s*$", "%1"))
+end 
+
 local function GetBagItems(bagId,func)
 	local size = GetNumBagUsedSlots(bagId)
 	
@@ -174,6 +179,7 @@ local function Initialise()
 	EVENT_MANAGER:RegisterForEvent("Recharge_CombatStateChanged",EVENT_PLAYER_COMBAT_STATE,Recharge_CombatStateChanged)
 
 	SLASH_COMMANDS["/rc"] = function(arg)
+		arg = trim(arg)
 		if arg == nil or arg == "" then
 			RechargeEquipped()
 		else
