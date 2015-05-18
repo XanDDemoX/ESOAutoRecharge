@@ -1,4 +1,4 @@
-ESOAutoRecharge v0.0.6
+ESOAutoRecharge v1.0.1
 =============
 
 An addon for The Elder Scrolls Online which recharges your equipped weapons automatically upon entering and leaving combat. 
@@ -7,7 +7,7 @@ A single soul gem will be consumed per weapon recharged in the order of worst to
 Installation
 =============
 
-1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%200.0.6.zip)
+1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%201.0.1.zip)
 2. Extract or copy the "Recharge" folder into your addons folder:
 
 "Documents\Elder Scrolls Online\live\Addons"
@@ -32,6 +32,8 @@ Usage
 
 Change Log
 =============
+* **Version 1.0.1**
+  * Added master weapon exclusion.
 * **Version 0.0.6**
   * Added string trim to input to remove whitespace before attempting to parse a potentially numeric input
 * **Version 0.0.5**

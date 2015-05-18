@@ -111,6 +111,32 @@ local function GetEquipSlotText(slot)
 	end
 end
 
+--The Master's Bow					ItemID: 55937
+--The Master's Dagger				ItemID: 55936
+--The Master's Inferno Staff		ItemID: 55938
+--The Master's Ice Staff			ItemID: 57448
+--The Master's Restoration Staff	ItemID: 55939
+--The Master's Lightning Staff		ItemID: 57454
+--The Master's Greatsword			ItemID: 55934
+--The Master's Sword				ItemID: 55935
+
+local _masterWeaponIds = {55937,55936,55938,57448,55939,57454,55934,55935}
+
+local function IsMasterWeapon(itemId)
+	for i,id in ipairs(_masterWeaponIds) do 
+		if itemId == id then
+			return true
+		end 
+	end 
+	return false 
+end
+
+
+local function IsItemChargable(bagId,slotIndex)
+	local id = GetItemInstanceId(bagId,slotIndex)
+	return not IsMasterWeapon(id)
+end 
+
 local function RechargeEquipped(silentNothing)
 
 	silentNothing = silentNothing or false 
@@ -123,27 +149,32 @@ local function RechargeEquipped(silentNothing)
 	
 	local str
 	
-	for i,v in ipairs(_slots) do
-		total = RechargeItem(BAG_WORN,v,gems,_settings.minChargePercent)
-		if total > 0 then
-			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(total,2)).." % filled)"
-		end
+	for i,slot in ipairs(_slots) do
+		if IsItemChargable(BAG_WORN,slot) == true then
+		
+			total = RechargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
+			
+			if total > 0 then
+				str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." % filled)"
+			end
+			
+		end 
 	end
 	
 	if str == nil then
 		
 		local charge,maxcharge,remain
 		
-		for i,v in ipairs(_slots) do
+		for i,slot in ipairs(_slots) do
 			
-			charge,maxcharge = GetChargeInfoForItem(BAG_WORN,v)
+			charge,maxcharge = GetChargeInfoForItem(BAG_WORN,slot)
 			
 			if maxcharge > 0 then 
 
 				remain = (charge / maxcharge) * 100
 				
 				if silentNothing == false then 
-					str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(remain,2)).." % remaining)"
+					str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(remain,2)).." % remaining)"
 				end
 				
 			end 
