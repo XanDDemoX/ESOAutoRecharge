@@ -1,4 +1,4 @@
-ESOAutoRecharge v0.0.4
+ESOAutoRecharge v0.0.5
 By XanDDemoX
 
 Recharges your equipped weapons automatically (if empty) upon entering and leaving combat. 
@@ -20,8 +20,20 @@ For example:
 "Documents\Elder Scrolls Online\liveeu\Addons\Recharge"
 
 Usage
+
 /rc - Attempts to recharge the currently equipped primary and secondary weapons.
 /rc on - Enable automatic equipped weapons recharging.
 /rc +
 /rc off - Disable automatic equipped weapons recharging.
 /rc -
+/rc 0-99  - Set the minimum charge percentage
+
+Change Log
+
+Version 0.0.5
+
+  - Enabled setting of a minimum charge percentage.
+
+Version 0.0.4
+
+  - Initial Release

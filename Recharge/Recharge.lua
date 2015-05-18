@@ -1,11 +1,7 @@
------------------------------------
---  Auto Recharge Version 0.0.3  --
------------------------------------
 
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
-local _settings = { enabled = true }
-local _delay = 250
+local _settings = { rechargeEnabled = true, minChargePercent=0 }
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -70,7 +66,7 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	local total = 0
 	
 	local isAbove,charge,maxcharge = IsItemAboveThreshold(bagId,slotIndex,minPercent)
-
+	
 	if isAbove == true then return 0 end
 
 	local oldcharge = charge
@@ -123,7 +119,7 @@ local function RechargeEquipped(silentNothing)
 	local str
 	
 	for i,v in ipairs(_slots) do
-		total = RechargeItem(BAG_WORN,v,gems,0)
+		total = RechargeItem(BAG_WORN,v,gems,_settings.minChargePercent)
 		if total > 0 then
 			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(total,2)).." % filled)"
 		end
@@ -158,7 +154,7 @@ local function RechargeEquipped(silentNothing)
 end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if _settings.enabled == true then
+	if _settings.rechargeEnabled == true then
 		RechargeEquipped(true)
 	end
 end
@@ -180,13 +176,23 @@ local function Initialise()
 	SLASH_COMMANDS["/rc"] = function(arg)
 		if arg == nil or arg == "" then
 			RechargeEquipped()
-		elseif isOnString(arg) then
-			_settings.enabled = true
-			d(_prefix.."Enabled")
-		elseif isOffString(arg) then
-			_settings.enabled = false
-			d(_prefix.."Disabled")
-		end
+		else
+			local percent = tonumber(arg)
+			
+			if percent ~= nil and percent >= 0 and percent <= 99 then
+				_settings.minChargePercent = (percent == 0 and 0) or (percent / 100)
+				d(table.concat({_prefix,"Minimum charge: ",tostring(percent),"%"}))
+			elseif percent ~= nil then 
+				d(table.concat({_prefix,"Invalid percentage: ",tostring(percent)," range: 0-99."}))
+			elseif isOnString(arg) then
+				_settings.rechargeEnabled = true
+				d(_prefix.."Enabled")
+			elseif isOffString(arg) then
+				_settings.rechargeEnabled = false
+				d(_prefix.."Disabled")
+			end
+		end 
+
 	end
 
 end
