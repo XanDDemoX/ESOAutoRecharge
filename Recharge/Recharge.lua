@@ -1,10 +1,11 @@
 -----------------------------------
 --  Auto Recharge Version 0.0.3  --
 -----------------------------------
-local _repairSlots = {EQUIP_SLOT_HEAD,EQUIP_SLOT_SHOULDERS, EQUIP_SLOT_CHEST,EQUIP_SLOT_WAIST, EQUIP_SLOT_LEGS,EQUIP_SLOT_HAND, EQUIP_SLOT_FEET}
-local _rechargeSlots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
+
+local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
-local _settings = { rechargeEnabled = true, rechargeMinPercent = 0, repairEnabled = true, repairMinPercent = 0}
+local _settings = { enabled = true }
+local _delay = 250
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -53,68 +54,7 @@ local function GetSoulGems(bagId)
 	return tbl
 end
 
-local function GetRepairKits(bagId)
-	local tbl = GetBagItems(bagId,function(i)
-		if IsItemRepairKit(bagId,i) == true then 
-			return {
-				bag = bagId,
-				index = i,
-				tier = GetRepairKitTier(bagId,i),
-				size = GetItemTotalCount(bagId,i)
-			}
-		end 
-	end)
-	
-	table.sort(tbl,function(x,y)
-		return x.tier > y.tier
-	end)
-	
-	return tbl
-end 
-
-local function IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
-	local condition = GetItemCondition(bagId,slotIndex) 
-	return condition > minPercent,(condition > 0 and (condition/100)) or 0 
-end
-
-local function RepairItem(bagId,slotIndex,kits,minPercent)
---
-	local isAbove,condition = IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
-	
-	if isAbove == true then return 0 end
-	
-	local oldcondition = condition
-	
-	local kit = kits[#kits]
-	
-	if kit ~= nil then 
-		
-		local link = GetItemLink(bagId,slotIndex,LINK_STYLE_DEFAULT)
-
-		local rating = GetItemLinkArmorRating(link,false)
-	
-		local amount = GetAmountRepairKitWouldRepairItem(bagId,slotIndex,kit.bag,kit.index)
-		
-		RepairItemWithRepairKit(bagId,slotIndex,kit.bag,kit.index)
-		
-		kit.size = kit.size - 10
-		
-		if kit.size < 1 then 
-			table.remove(kits)
-		end 
-		
-		if ((condition*rating) + amount) < rating then 
-			condition = condition + (amount/rating)	
-		else
-			condition = 1
-		end
-		
-	end 
-	
-	return (condition-oldcondition) * 100
-end 
-
-local function IsItemAboveChargeThreshold(bagId,slotIndex,minPercent)
+local function IsItemAboveThreshold(bagId,slotIndex,minPercent)
 
 	local charge,maxcharge = GetChargeInfoForItem(bagId,slotIndex)
 	local isAbove = charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) > minPercent)
@@ -123,14 +63,21 @@ local function IsItemAboveChargeThreshold(bagId,slotIndex,minPercent)
 end
 
 local function RechargeItem(bagId,slotIndex,gems,minPercent)
-		
-	local isAbove,charge,maxcharge = IsItemAboveChargeThreshold(bagId,slotIndex,minPercent)
+	
+	local gem
+	
+	local recharged = false
+	local total = 0
+	
+	local isAbove,charge,maxcharge = IsItemAboveThreshold(bagId,slotIndex,minPercent)
 
 	if isAbove == true then return 0 end
 
 	local oldcharge = charge
-	
-	local gem = gems[#gems]
+		
+	if gem == nil then
+		gem = gems[#gems]
+	end
 
 	if gem ~= nil then
 
@@ -163,51 +110,56 @@ local function GetEquipSlotText(slot)
 	end
 end
 
+local function RechargeEquipped(silentNothing)
 
-local function RepairRechargeEquipped(sltos,getItems,repairRecharge,text)
+	silentNothing = silentNothing or false 
 
-	local items = getItems()
-	if #items == 0 then return end 
+	local gems = GetSoulGems(BAG_BACKPACK)
+	if #gems == 0 then return end
 	
+
 	local total = 0 
-	local str 
 	
-	for i,v in ipairs(slots) do 
+	local str
 	
-		total = repairRecharge(v,kits)
+	for i,v in ipairs(_slots) do
+		total = RechargeItem(BAG_WORN,v,gems,0)
+		if total > 0 then
+			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(total,2)).." % filled)"
+		end
+	end
+	
+	if str == nil then
 		
-		if total > 0 then 
-			str = (str or text..": ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(total,2)).." %)"
-		end 
-	
-	end 
+		local charge,maxcharge,remain
+		
+		for i,v in ipairs(_slots) do
+			
+			charge,maxcharge = GetChargeInfoForItem(BAG_WORN,v)
+			
+			if maxcharge > 0 then 
+
+				remain = (charge / maxcharge) * 100
+				
+				if silentNothing == false then 
+					str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(v).." ("..tostring(round(remain,2)).." % remaining)"
+				end
+				
+			end 
+		end
+		
+	end
 	
 	if str ~= nil then
 		d(_prefix..str)
+	elseif silentNothing == false then
+		d("No rechargeable weapons equipped.")
 	end
-end 
-
-local function RepairEquipped()
-	RepairRechargeEquipped(_repairSlots,
-							function() return GetRepairKits(BAG_BACKPACK) end,
-							function(v,kits) return RepairItem(BAG_WORN,v,kits,_settings.repairMinPercent) end,
-							"Repaired")
-end 
-
-local function RechargeEquipped()
-	RepairRechargeEquipped(_rechargeSlots,
-							function() return GetSoulGems(BAG_BACKPACK) end,
-							function(v,gems) return RechargeItem(BAG_WORN,v,gems,_settings.rechargeMinPercent) end,
-							"Recharged")
-
-end 
+end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if _settings.repairEnabled == true then 
-		RepairEquipped()
-	end 
-	if _settings.rechargeEnabled == true then
-		RechargeEquipped()
+	if _settings.enabled == true then
+		RechargeEquipped(true)
 	end
 end
 
@@ -221,34 +173,21 @@ local function isOffString(str)
 	return str == "-" or str == "off"
 end
 
-local function GetBoolValue(arg)
-	if arg == nil or arg == "" then return nil end 
-	if isOnString(arg) then return true end 
-	if isOffString(arg) then return false end
-	return nil
-end 
-
 local function Initialise()
 
 	EVENT_MANAGER:RegisterForEvent("Recharge_CombatStateChanged",EVENT_PLAYER_COMBAT_STATE,Recharge_CombatStateChanged)
 
 	SLASH_COMMANDS["/rc"] = function(arg)
-		local value = GetBoolValue(arg)
-		if value ~= nil then 
-			_settings.rechargeEnabled = value
-			d(_prefix, (value == true and "Charging Enabled") or "Charging Disabled")
-		end 
+		if arg == nil or arg == "" then
+			RechargeEquipped()
+		elseif isOnString(arg) then
+			_settings.enabled = true
+			d(_prefix.."Enabled")
+		elseif isOffString(arg) then
+			_settings.enabled = false
+			d(_prefix.."Disabled")
+		end
 	end
-	
-	SLASH_COMMANDS["/rp"] = function(arg)
-		local value = GetBoolValue(arg)
-		if value ~= nil then 
-			_settings.repairEnabled = value
-			d(_prefix, (value == true and "Repairing Enabled") or "Repairing Disabled")
-		else
-			d(IsItemAboveConditionThreshold(BAG_WORN,EQUIP_SLOT_HEAD,0))
-		end 
-	end 
 
 end
 
