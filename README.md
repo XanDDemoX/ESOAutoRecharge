@@ -1,7 +1,7 @@
 ESOAutoRecharge v0.0.5
 =============
 
-An addon for The Elder Scrolls Online which recharges your equipped weapons automatically (if empty) upon entering and leaving combat. 
+An addon for The Elder Scrolls Online which recharges your equipped weapons automatically upon entering and leaving combat. 
 A single soul gem will be consumed per weapon recharged in the order of worst to best (e.g lesser soul gems will be used before common).
 
 Installation

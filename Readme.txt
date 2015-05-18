@@ -1,7 +1,7 @@
 ESOAutoRecharge v0.0.5
 By XanDDemoX
 
-Recharges your equipped weapons automatically (if empty) upon entering and leaving combat. 
+Recharges your equipped weapons automatically upon entering and leaving combat. 
 A single soul gem will be consumed per weapon recharged in the order of worst to best (e.g lesser soul gems will be used before common).
 
 Installation
