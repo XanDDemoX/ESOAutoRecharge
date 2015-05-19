@@ -1,7 +1,7 @@
 
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
-local _settings = { rechargeEnabled = true, minChargePercent=0 }
+local _settings = { enabled = true, minChargePercent=0 }
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -168,7 +168,7 @@ local function RechargeEquipped(silentNothing)
 end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if _settings.rechargeEnabled == true then
+	if _settings.enabled == true then
 		RechargeEquipped(true)
 	end
 end
@@ -200,10 +200,10 @@ local function Initialise()
 			elseif percent ~= nil then 
 				d(table.concat({_prefix,"Invalid percentage: ",tostring(percent)," range: 0-99."}))
 			elseif isOnString(arg) then
-				_settings.rechargeEnabled = true
+				_settings.enabled = true
 				d(_prefix.."Enabled")
 			elseif isOffString(arg) then
-				_settings.rechargeEnabled = false
+				_settings.enabled = false
 				d(_prefix.."Disabled")
 			end
 		end 

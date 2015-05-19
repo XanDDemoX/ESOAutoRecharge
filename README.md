@@ -7,7 +7,7 @@ A single soul gem will be consumed per weapon recharged in the order of worst to
 Installation
 =============
 
-1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%201.0.3.zip)
+1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%201.0.4.zip)
 2. Extract or copy the "Recharge" folder into your addons folder:
 
 "Documents\Elder Scrolls Online\live\Addons"
@@ -32,6 +32,8 @@ Usage
 
 Change Log
 =============
+* **Version 1.0.4**
+  * Restored original settings variable name
 * **Version 1.0.3**
   * Moved Readme and Licence into Recharge folder within zip for users who use Minion. 
 * **Version 1.0.2**
