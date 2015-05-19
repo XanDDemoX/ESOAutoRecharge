@@ -1,4 +1,6 @@
 
+Recharge = {}
+
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
 local _settings = { enabled = true, minChargePercent=0 }
@@ -63,6 +65,10 @@ local function IsItemAboveThreshold(bagId,slotIndex,minPercent)
 	return isAbove,charge,maxcharge
 end
 
+local function IsItemChargable(bagId,slotIndex)
+	return not Recharge.ItemsData.IsMasterWeapon(bagId,slotIndex)
+end 
+
 local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	
 	local gem
@@ -72,8 +78,8 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	
 	local isAbove,charge,maxcharge = IsItemAboveThreshold(bagId,slotIndex,minPercent)
 	
-	if isAbove == true then return 0 end
-
+	if isAbove == true or IsItemChargable(bagId,slotIndex) == false then return 0 end
+	
 	local oldcharge = charge
 		
 	if gem == nil then
@@ -111,9 +117,7 @@ local function GetEquipSlotText(slot)
 	end
 end
 
-local function IsItemChargable(bagId,slotIndex)
-	return true
-end 
+
 
 local function RechargeEquipped(silentNothing)
 
@@ -128,15 +132,13 @@ local function RechargeEquipped(silentNothing)
 	local str
 	
 	for i,slot in ipairs(_slots) do
-		if IsItemChargable(BAG_WORN,slot) == true then
+
+		total = RechargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
 		
-			total = RechargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
-			
-			if total > 0 then
-				str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." % filled)"
-			end
-			
-		end 
+		if total > 0 then
+			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." % filled)"
+		end
+
 	end
 	
 	if str == nil then
