@@ -1,4 +1,4 @@
-ESOAutoRecharge v1.0.4
+ESOAutoRecharge v1.0.5
 By XanDDemoX
 
 Recharges your equipped weapons automatically upon entering and leaving combat. 
@@ -29,6 +29,8 @@ Usage
 /rc 0-99  - Set the minimum charge percentage
 
 Change Log
+Version 1.0.5
+	- Increased settings version.
 
 Version 1.0.4
 

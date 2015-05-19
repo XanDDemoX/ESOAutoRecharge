@@ -218,7 +218,7 @@ local function Recharge_Loaded(eventCode, addOnName)
         return
     end
 	
-	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "1", "", _settings, nil)
+	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "2", "", _settings, nil)
 	
 	Initialise()
 	
