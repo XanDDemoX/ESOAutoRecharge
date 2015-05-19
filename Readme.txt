@@ -32,7 +32,7 @@ Change Log
 
 Version 1.0.3
 
-	- Moved Readme and Licence into FasterTravel folder within zip for users who use Minion. 
+	- Moved Readme and Licence into Recharge folder within zip for users who use Minion. 
 
 Version 1.0.2
 
