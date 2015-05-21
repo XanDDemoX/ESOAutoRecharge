@@ -57,6 +57,7 @@ local function IsMasterWeapon(bagId,slotId)
 	
 	if item.IsMasterWeapon == nil then 
 		item.IsMasterWeapon = false
+		local id = item.id
 		for i,v in ipairs(_masterWeaponIds) do
 			if id == v then 
 				item.IsMasterWeapon = true
