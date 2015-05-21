@@ -39,31 +39,38 @@ local _masterWeaponIds = {
 55995  --Weighted
 }
 
-local _linkIdCache = {}
+local _linkCache = {}
 
-local function GetItemId(bagId,slotId)
+local function GetItemLinkInfo(bagId,slotId)
 	local link = GetItemLink(bagId,slotId) 
-	local itemId = _linkIdCache[link]
-	if itemId == nil then 
-		itemId = select(4, ZO_LinkHandler_ParseLink(link))
-		_linkIdCache[link] = itemId
+	local item = _linkCache[link]
+	if item == nil then 
+		local id = select(4, ZO_LinkHandler_ParseLink(link))
+		item = { id=id, link=link }
+		_linkCache[link] = item
 	end 
-	return itemId
+	return item
 end 
 
 local function IsMasterWeapon(bagId,slotId)
-	local id = GetItemId(bagId,slotId)
+	local item = GetItemLinkInfo(bagId,slotId)
 	
-	for i,v in ipairs(_masterWeaponIds) do
-		if id == v then return true end 
+	if item.IsMasterWeapon == nil then 
+		item.IsMasterWeapon = false
+		for i,v in ipairs(_masterWeaponIds) do
+			if id == v then 
+				item.IsMasterWeapon = true
+				break
+			end 
+		end 
 	end 
-	
-	return false
+
+	return item.IsMasterWeapon
 end
 
 local d = ItemsData
 
-d.GetItemId = GetItemId
+d.GetItemLinkInfo = GetItemLinkInfo
 d.IsMasterWeapon = IsMasterWeapon
 
 Recharge.ItemsData = ItemsData

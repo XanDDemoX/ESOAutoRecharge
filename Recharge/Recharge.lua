@@ -170,7 +170,7 @@ local function RechargeEquipped(silentNothing)
 end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if _settings.enabled == true then
+	if _settings.enabled == true and IsUnitDead("player") == false then
 		RechargeEquipped(true)
 	end
 end
@@ -192,6 +192,7 @@ local function Initialise()
 	SLASH_COMMANDS["/rc"] = function(arg)
 		arg = trim(arg)
 		if arg == nil or arg == "" then
+			if IsUnitDead("player") == true then return end
 			RechargeEquipped()
 		else
 			local percent = tonumber(arg)
