@@ -1,6 +1,6 @@
 
 Recharge = {}
-
+local _repairSlots = {EQUIP_SLOT_HEAD,EQUIP_SLOT_SHOULDERS, EQUIP_SLOT_CHEST,EQUIP_SLOT_WAIST, EQUIP_SLOT_LEGS,EQUIP_SLOT_HAND, EQUIP_SLOT_FEET}
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
 local _settings = { enabled = true, minChargePercent=0 }
@@ -15,47 +15,6 @@ local function trim(str)
 	return (str:gsub("^%s*(.-)%s*$", "%1"))
 end 
 
-local function GetBagItems(bagId,func)
-	local size = GetNumBagUsedSlots(bagId)
-	
-	local tbl = {}
-	
-	local v
-	
-	for i =1, size do
-	
-		v = func(i)
-		
-		if v ~= nil then 
-			table.insert(tbl,v)
-		end
-	
-	end
-	
-	return tbl
-end
-
-local function GetSoulGems(bagId)
-	
-	local tbl = GetBagItems(bagId,function(i)
-	
-		if IsItemSoulGem(SOUL_GEM_TYPE_FILLED,bagId,i) == true then
-			return {
-				bag=bagId,
-				index =i, 
-				tier=GetSoulGemItemInfo(bagId,i),
-				size=GetItemTotalCount(bagId,i)
-			}
-		end
-		
-	end)
-	
-	table.sort(tbl,function(x,y)
-		return x.tier > y.tier
-	end)
-	
-	return tbl
-end
 
 local function IsItemAboveThreshold(bagId,slotIndex,minPercent)
 
@@ -109,6 +68,50 @@ local function RechargeItem(bagId,slotIndex,gems,minPercent)
 	return ((charge - oldcharge) / maxcharge) * 100
 end
 
+
+
+local function IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
+	local condition = GetItemCondition(bagId,slotIndex) 
+	return condition > minPercent,(condition > 0 and (condition/100)) or 0 
+end
+
+local function RepairItem(bagId,slotIndex,kits,minPercent)
+
+	local isAbove,condition = IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
+	
+	if isAbove == true then return 0 end
+	
+	local oldcondition = condition
+	
+	local kit = kits[#kits]
+	
+	if kit ~= nil then 
+		
+		local link = GetItemLink(bagId,slotIndex,LINK_STYLE_DEFAULT)
+
+		local rating = GetItemLinkArmorRating(link,false)
+	
+		local amount = GetAmountRepairKitWouldRepairItem(bagId,slotIndex,kit.bag,kit.index)
+		
+		RepairItemWithRepairKit(bagId,slotIndex,kit.bag,kit.index)
+		
+		kit.size = kit.size - 10
+		
+		if kit.size < 1 then 
+			table.remove(kits)
+		end 
+		
+		if ((condition*rating)  amount) < rating then 
+			condition = condition  (amount/rating)	
+		else
+			condition = 1
+		end
+		
+	end 
+	
+	return (condition-oldcondition) * 100
+end 
+
 local function GetEquipSlotText(slot)
 	if slot == EQUIP_SLOT_MAIN_HAND then return "Main Hand"
 	elseif slot == EQUIP_SLOT_OFF_HAND then return "Off Hand"
@@ -117,13 +120,11 @@ local function GetEquipSlotText(slot)
 	end
 end
 
-
-
 local function RechargeEquipped(silentNothing)
 
 	silentNothing = silentNothing or false 
 
-	local gems = GetSoulGems(BAG_BACKPACK)
+	local gems = Recharge.Bag.GetSoulGems(BAG_BACKPACK)
 	if #gems == 0 then return end
 	
 
@@ -168,6 +169,7 @@ local function RechargeEquipped(silentNothing)
 		d("No rechargeable weapons equipped.")
 	end
 end
+
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
 	if _settings.enabled == true and IsUnitDead("player") == false then
