@@ -7,3 +7,5 @@
 Recharge.lua
 Bag.lua
 ItemsData.lua
+Charge.lua
+Repair.lua

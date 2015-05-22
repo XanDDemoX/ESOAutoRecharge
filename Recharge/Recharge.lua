@@ -1,5 +1,6 @@
 
 Recharge = {}
+
 local _repairSlots = {EQUIP_SLOT_HEAD,EQUIP_SLOT_SHOULDERS, EQUIP_SLOT_CHEST,EQUIP_SLOT_WAIST, EQUIP_SLOT_LEGS,EQUIP_SLOT_HAND, EQUIP_SLOT_FEET}
 local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
 local _prefix = "[AutoRecharge]: "
@@ -15,102 +16,6 @@ local function trim(str)
 	return (str:gsub("^%s*(.-)%s*$", "%1"))
 end 
 
-
-local function IsItemAboveThreshold(bagId,slotIndex,minPercent)
-
-	local charge,maxcharge = GetChargeInfoForItem(bagId,slotIndex)
-	local isAbove = charge >= maxcharge or (minPercent ~= nil and (charge/maxcharge) > minPercent)
-	
-	return isAbove,charge,maxcharge
-end
-
-local function IsItemChargable(bagId,slotIndex)
-	return not Recharge.ItemsData.IsMasterWeapon(bagId,slotIndex)
-end 
-
-local function RechargeItem(bagId,slotIndex,gems,minPercent)
-	
-	local gem
-	
-	local recharged = false
-	local total = 0
-	
-	local isAbove,charge,maxcharge = IsItemAboveThreshold(bagId,slotIndex,minPercent)
-	
-	if isAbove == true or IsItemChargable(bagId,slotIndex) == false then return 0 end
-	
-	local oldcharge = charge
-		
-	if gem == nil then
-		gem = gems[#gems]
-	end
-
-	if gem ~= nil then
-
-		local amount = GetAmountSoulGemWouldChargeItem(bagId,slotIndex,gem.bag,gem.index)
-		
-		ChargeItemWithSoulGem(bagId,slotIndex,gem.bag,gem.index)
-		
-		gem.size = gem.size - 1 
-		
-		if gem.size < 1 then
-			table.remove(gems)
-		end
-		
-		if (charge + amount) < maxcharge then
-			charge = charge + amount
-		else
-			charge = maxcharge
-		end
-		
-	end
-	
-	return ((charge - oldcharge) / maxcharge) * 100
-end
-
-
-
-local function IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
-	local condition = GetItemCondition(bagId,slotIndex) 
-	return condition > minPercent,(condition > 0 and (condition/100)) or 0 
-end
-
-local function RepairItem(bagId,slotIndex,kits,minPercent)
-
-	local isAbove,condition = IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
-	
-	if isAbove == true then return 0 end
-	
-	local oldcondition = condition
-	
-	local kit = kits[#kits]
-	
-	if kit ~= nil then 
-		
-		local link = GetItemLink(bagId,slotIndex,LINK_STYLE_DEFAULT)
-
-		local rating = GetItemLinkArmorRating(link,false)
-	
-		local amount = GetAmountRepairKitWouldRepairItem(bagId,slotIndex,kit.bag,kit.index)
-		
-		RepairItemWithRepairKit(bagId,slotIndex,kit.bag,kit.index)
-		
-		kit.size = kit.size - 10
-		
-		if kit.size < 1 then 
-			table.remove(kits)
-		end 
-		
-		if ((condition*rating)  amount) < rating then 
-			condition = condition  (amount/rating)	
-		else
-			condition = 1
-		end
-		
-	end 
-	
-	return (condition-oldcondition) * 100
-end 
 
 local function GetEquipSlotText(slot)
 	if slot == EQUIP_SLOT_MAIN_HAND then return "Main Hand"
@@ -134,7 +39,7 @@ local function RechargeEquipped(silentNothing)
 	
 	for i,slot in ipairs(_slots) do
 
-		total = RechargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
+		total = Recharge.Charge.ChargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
 		
 		if total > 0 then
 			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." % filled)"
