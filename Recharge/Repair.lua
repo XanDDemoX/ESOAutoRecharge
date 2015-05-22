@@ -8,6 +8,10 @@ end
 
 local function RepairItem(bagId,slotIndex,kits,minPercent)
 
+	local count = #kits 
+	
+	if count < 1 then return 0 end 
+
 	local isAbove,condition = IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
 	
 	if isAbove == true then return 0 end
@@ -26,13 +30,13 @@ local function RepairItem(bagId,slotIndex,kits,minPercent)
 		
 		RepairItemWithRepairKit(bagId,slotIndex,kit.bag,kit.index)
 		
-		kit.size = kit.size - 10
+		kit.size = kit.size - 1
 		
 		if kit.size < 1 then 
 			table.remove(kits)
 		end 
 		
-		if ((condition*rating)  amount) < rating then 
+		if ((condition*rating) + amount) < rating then 
 			condition = condition  (amount/rating)	
 		else
 			condition = 1
