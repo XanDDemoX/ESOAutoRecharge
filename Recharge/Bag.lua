@@ -2,8 +2,8 @@
 local Bag = {}
 
 local function GetBagItems(bagId,func)
-	local size = GetNumBagUsedSlots(bagId)
-	
+	local size = GetBagSize(bagId)
+
 	local tbl = {}
 	
 	local v
@@ -17,14 +17,13 @@ local function GetBagItems(bagId,func)
 		end
 	
 	end
-	
 	return tbl
 end
 
 local function GetSoulGems(bagId)
 	
 	local tbl = GetBagItems(bagId,function(i)
-	
+
 		if IsItemSoulGem(SOUL_GEM_TYPE_FILLED,bagId,i) == true then
 			return {
 				bag=bagId,
@@ -35,7 +34,7 @@ local function GetSoulGems(bagId)
 		end
 		
 	end)
-	
+
 	table.sort(tbl,function(x,y)
 		return x.tier > y.tier
 	end)

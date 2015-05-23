@@ -2,9 +2,24 @@
 Recharge = {}
 
 local _repairSlots = {EQUIP_SLOT_HEAD,EQUIP_SLOT_SHOULDERS, EQUIP_SLOT_CHEST,EQUIP_SLOT_WAIST, EQUIP_SLOT_LEGS,EQUIP_SLOT_HAND, EQUIP_SLOT_FEET}
-local _slots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
+local _rechargeSlots = {EQUIP_SLOT_MAIN_HAND,EQUIP_SLOT_OFF_HAND,EQUIP_SLOT_BACKUP_MAIN,EQUIP_SLOT_BACKUP_OFF}
+
+local _slotText = { 
+	[EQUIP_SLOT_MAIN_HAND] = "Main Hand",
+	[EQUIP_SLOT_OFF_HAND] = "Off Hand",
+	[EQUIP_SLOT_BACKUP_MAIN] = "Backup Main Hand",
+	[EQUIP_SLOT_BACKUP_OFF] = "Backup Off Hand" ,
+	[EQUIP_SLOT_HEAD] = "Head",
+	[EQUIP_SLOT_SHOULDERS] = "Shoulders",
+	[EQUIP_SLOT_CHEST] = "Chest",
+	[EQUIP_SLOT_WAIST] = "Waist",
+	[EQUIP_SLOT_LEGS] = "Legs",
+	[EQUIP_SLOT_HAND] = "Hands",
+	[EQUIP_SLOT_FEET] = "Feet"
+ }
+
 local _prefix = "[AutoRecharge]: "
-local _settings = { enabled = true, minChargePercent=0 }
+local _settings = { chargeEnabled = true, repairEnabled = true, minChargePercent=0 }
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -16,80 +31,130 @@ local function trim(str)
 	return (str:gsub("^%s*(.-)%s*$", "%1"))
 end 
 
-
 local function GetEquipSlotText(slot)
-	if slot == EQUIP_SLOT_MAIN_HAND then return "Main Hand"
-	elseif slot == EQUIP_SLOT_OFF_HAND then return "Off Hand"
-	elseif slot == EQUIP_SLOT_BACKUP_MAIN then return "Backup Main Hand"
-	elseif slot == EQUIP_SLOT_BACKUP_OFF then return "Backup Off Hand" 
-	end
+	return _slotText[slot]
 end
 
-local function RechargeEquipped(silentNothing)
+local function println(...)
+	local args = {...}
+	for i,v in ipairs(args) do 
+		args[i] = tostring(v)
+	end 
+	table.insert(args,1,_prefix)
+	d(table.concat(args))
+end
+
+local function ChargeEquipped(silentNothing)
 
 	silentNothing = silentNothing or false 
 
 	local gems = Recharge.Bag.GetSoulGems(BAG_BACKPACK)
-	if #gems == 0 then return end
+
+	if #gems == 0 then 
+		if silentNothing == false then println("Soul gems empty.") end 
+		return 
+	end
 	
 
 	local total = 0 
 	
 	local str
 	
-	for i,slot in ipairs(_slots) do
+	for i,slot in ipairs(_rechargeSlots) do
 
 		total = Recharge.Charge.ChargeItem(BAG_WORN,slot,gems,_settings.minChargePercent)
 		
 		if total > 0 then
-			str = (str or "Recharged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." % filled)"
+			str = (str or "Charged: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." %)"
 		end
 
 	end
 	
-	if str == nil then
+	if str == nil and silentNothing == false then
 		
-		local charge,maxcharge,remain
+		local charge,maxcharge
 		
-		for i,slot in ipairs(_slots) do
+		for i,slot in ipairs(_rechargeSlots) do
 			
 			charge,maxcharge = GetChargeInfoForItem(BAG_WORN,slot)
 			
 			if maxcharge > 0 then 
-
-				remain = (charge / maxcharge) * 100
-				
-				if silentNothing == false then 
-					str = (str or "Recharged nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(remain,2)).." % remaining)"
-				end
-				
+				str = (str or "Charged nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round((charge / maxcharge) * 100,2)).." %)"
 			end 
 		end
 		
 	end
 	
 	if str ~= nil then
-		d(_prefix..str)
+		println(str)
 	elseif silentNothing == false then
-		d("No rechargeable weapons equipped.")
+		println("No chargeable weapons equipped.")
 	end
 end
 
+
+local function RepairEquipped(silentNothing)
+	silentNothing = silentNothing or false 
+	
+	local kits = Recharge.Bag.GetRepairKits(BAG_BACKPACK)
+	if #kits == 0 then
+		if silentNothing == false then println("Repair kits empty.") end 
+		return
+	end 
+	
+	local total = 0 
+	
+	local str
+	
+	for i,slot in ipairs(_repairSlots) do
+
+		total = Recharge.Repair.RepairItem(BAG_WORN,slot,kits)
+		
+		if total > 0 then
+			str = (str or "Repaired: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." %)"
+		end
+		
+	end
+	
+	if str == nil and silentNothing == false then
+		for i,slot in ipairs(_repairSlots) do
+			str = (str or "Repaired nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round((charge / maxcharge) * 100,2)).." %)"
+		end 
+	end 
+	
+	if str ~= nil then
+		println(str)
+	end
+end
+
+local function IsPlayerDead()
+	return IsUnitDead("player")
+end
 
 local function Recharge_CombatStateChanged(eventCode, inCombat)
-	if _settings.enabled == true and IsUnitDead("player") == false then
-		RechargeEquipped(true)
+	if IsPlayerDead() == true then return end
+	
+	if _settings.chargeEnabled == true  then
+		ChargeEquipped(true)
 	end
+	
+	if _settings.repairEnabled == true then
+		RepairEquipped(true)
+	end
+	
 end
 
-local function isOnString(str)
-	str = string.lower(str)
-	return str == "+" or str == "on"
+local function TryParseOnOff(str)
+	local on = (str == "+" or str == "on")
+	local off = (str == "-" or str == "off")
+	if on == false and off == false then return nil end
+	return on
 end
 
-local function isOffString(str)
-	str = string.lower(str)
-	return str == "-" or str == "off"
+local function TryParsePercent(str)
+	local percent = tonumber(str)
+	if percent >= 0 and percent <= 100 then return (percent / 100) end
+	return nil
 end
 
 local function Initialise()
@@ -99,26 +164,40 @@ local function Initialise()
 	SLASH_COMMANDS["/rc"] = function(arg)
 		arg = trim(arg)
 		if arg == nil or arg == "" then
-			if IsUnitDead("player") == true then return end
-			RechargeEquipped()
+			if IsPlayerDead() == true then return end
+			ChargeEquipped()
 		else
-			local percent = tonumber(arg)
+			local percent = TryParsePercent(arg)
 			
-			if percent ~= nil and percent >= 0 and percent <= 99 then
-				_settings.minChargePercent = (percent == 0 and 0) or (percent / 100)
-				d(table.concat({_prefix,"Minimum charge: ",tostring(percent),"%"}))
+			if percent ~= nil and percent >= 0 and percent < 1 then
+				_settings.minChargePercent = percent
+				println("Minimum charge: ",tostring(percent * 100),"%")
 			elseif percent ~= nil then 
-				d(table.concat({_prefix,"Invalid percentage: ",tostring(percent)," range: 0-99."}))
-			elseif isOnString(arg) then
-				_settings.enabled = true
-				d(_prefix.."Enabled")
-			elseif isOffString(arg) then
-				_settings.enabled = false
-				d(_prefix.."Disabled")
+				println("Invalid percentage: ",tostring(percent * 100)," range: 0-99.")
+			else
+				 local enabled = TryParseOnOff(arg)
+				 if enabled ~= nil then 
+					_settings.chargeEnabled = enabled
+					println("Charge ", ((_settings.chargeEnabled and "Enabled") or "Disabled"))
+				 end
 			end
 		end 
 
 	end
+	
+	SLASH_COMMANDS["/rp"] = function(arg)
+		arg = trim(arg)
+		if arg == nil or arg == "" then
+			if IsPlayerDead() == true then return end
+			RepairEquipped()
+		else
+			local enabled = TryParseOnOff(arg)
+			if enabled ~= nil then 
+				_settings.repairEnabled = enabled
+				println("Repair ",((_settings.repairEnabled and "Enabled") or "Disabled"))
+			end
+		end 
+	end 
 
 end
 
@@ -128,7 +207,7 @@ local function Recharge_Loaded(eventCode, addOnName)
         return
     end
 	
-	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "2", "", _settings, nil)
+	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "3", "", _settings, nil)
 	
 	Initialise()
 	
