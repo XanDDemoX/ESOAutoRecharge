@@ -19,7 +19,7 @@ local _slotText = {
  }
 
 local _prefix = "[AutoRecharge]: "
-local _settings = { chargeEnabled = true, repairEnabled = true, minChargePercent=0 }
+local _settings = { chargeEnabled = true, repairEnabled = true, minChargePercent=0, minConditionPercent=0 }
 
 local function round(value,places)
 	local s =  10 ^ places
@@ -108,7 +108,7 @@ local function RepairEquipped(silentNothing)
 	
 	for i,slot in ipairs(_repairSlots) do
 
-		total = Recharge.Repair.RepairItem(BAG_WORN,slot,kits)
+		total = Recharge.Repair.RepairItem(BAG_WORN,slot,kits, _settings.minConditionPercent)
 		
 		if total > 0 then
 			str = (str or "Repaired: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(total,2)).." %)"
@@ -117,8 +117,12 @@ local function RepairEquipped(silentNothing)
 	end
 	
 	if str == nil and silentNothing == false then
+		
+		local condition 
+	
 		for i,slot in ipairs(_repairSlots) do
-			str = (str or "Repaired nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round((charge / maxcharge) * 100,2)).." %)"
+			condition = GetItemCondition(BAG_WORN,slot) 
+			str = (str or "Repaired nothing: ")..((str and ", ") or "")..GetEquipSlotText(slot).." ("..tostring(round(condition,2)).." %)"
 		end 
 	end 
 	
@@ -191,11 +195,21 @@ local function Initialise()
 			if IsPlayerDead() == true then return end
 			RepairEquipped()
 		else
-			local enabled = TryParseOnOff(arg)
-			if enabled ~= nil then 
-				_settings.repairEnabled = enabled
-				println("Repair ",((_settings.repairEnabled and "Enabled") or "Disabled"))
+			local percent = TryParsePercent(arg)
+			
+			if percent ~= nil and percent >= 0 and percent < 1 then
+				_settings.minConditionPercent = percent
+				println("Minimum condition: ",tostring(percent * 100),"%")
+			elseif percent ~= nil then 
+				println("Invalid percentage: ",tostring(percent * 100)," range: 0-99.")
+			else
+				local enabled = TryParseOnOff(arg)
+				if enabled ~= nil then 
+					_settings.repairEnabled = enabled
+					println("Repair ",((_settings.repairEnabled and "Enabled") or "Disabled"))
+				end
 			end
+		
 		end 
 	end 
 

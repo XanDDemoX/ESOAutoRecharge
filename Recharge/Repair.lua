@@ -2,11 +2,11 @@
 local Repair = {}
 
 local function IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
-	local condition = GetItemCondition(bagId,slotIndex) 
-	return condition > minPercent,(condition > 0 and (condition/100)) or 0 
+	local condition = GetItemCondition(bagId,slotIndex)
+	return (condition / 100) > minPercent,condition
 end
 
-local function RepairItem(bagId,slotIndex,kits)
+local function RepairItem(bagId,slotIndex,kits,minPercent)
 
 	local count = #kits 
 	
@@ -16,19 +16,15 @@ local function RepairItem(bagId,slotIndex,kits)
 	
 	if kit ~= nil then 
 	
-		local oldcondition = condition
-		
+
 		local amount = GetAmountRepairKitWouldRepairItem(bagId,slotIndex,kit.bag,kit.index)
-				
-		local minPercent = 1-amount
 		
 		local isAbove,condition = IsItemAboveConditionThreshold(bagId,slotIndex,minPercent)
+		local oldcondition = condition
 		
 		if isAbove == true then return 0 end
 			
 		local link = GetItemLink(bagId,slotIndex,LINK_STYLE_DEFAULT)
-
-		local rating = GetItemLinkArmorRating(link,false)
 	
 		RepairItemWithRepairKit(bagId,slotIndex,kit.bag,kit.index)
 		
@@ -38,13 +34,13 @@ local function RepairItem(bagId,slotIndex,kits)
 			table.remove(kits)
 		end 
 		
-		if ((condition*rating) + amount) < rating then 
-			condition = condition + (amount/rating)	
-		else
-			condition = 1
+		condition = condition + amount
+		
+		if condition > 100 then 
+			condition = 100
 		end
 		
-		return (condition-oldcondition) * 100
+		return (condition-oldcondition)
 	end 
 	
 	return 0

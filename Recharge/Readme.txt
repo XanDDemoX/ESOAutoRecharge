@@ -1,8 +1,9 @@
-ESOAutoRecharge v1.0.7
+ESOAutoRecharge v2.0.0
 By XanDDemoX
 
-Recharges your equipped weapons automatically upon entering and leaving combat. 
+Recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
 A single soul gem will be consumed per weapon recharged in the order of worst to best (e.g lesser soul gems will be used before common).
+A single repair kit will be consumed per piece of armour recharged in the order of worst to best (e.g common repair kits will be used before greater).
 
 Installation
 
@@ -28,7 +29,19 @@ Usage
 /rc -
 /rc 0-99  - Set the minimum charge percentage
 
+/rp - Attempts to repair the currently equipped armour. 
+/rp on - Enable automatic amour repairing. 
+/rp +
+/rp off - Disable automatic armour repairing. 
+/rp -
+/rp 0-99  - Set the minimum condition percentage
+
 Change Log
+
+Version 2.0.0
+
+	- Implemented Automatic amour repair
+	- Fixed potentially not searching all bag slots for items.
 
 Version 1.0.7
 
