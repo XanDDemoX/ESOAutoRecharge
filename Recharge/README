@@ -1,4 +1,4 @@
-ESOAutoRecharge v2.0.1
+ESOAutoRecharge v2.0.2
 By XanDDemoX
 
 Recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
@@ -37,6 +37,10 @@ Usage
 /rp 0-99  - Set the minimum condition percentage
 
 Change Log
+
+Version 2.0.2
+
+	- Renamed Readme.txt to README to prevent ESO detecting it as an addon
 
 Version 2.0.1
 	
