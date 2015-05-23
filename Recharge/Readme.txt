@@ -1,4 +1,4 @@
-ESOAutoRecharge v2.0.0
+ESOAutoRecharge v2.0.1
 By XanDDemoX
 
 Recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
@@ -37,6 +37,10 @@ Usage
 /rp 0-99  - Set the minimum condition percentage
 
 Change Log
+
+Version 2.0.1
+	
+	- Fixed error attempting to enable / disable using slash commands.
 
 Version 2.0.0
 

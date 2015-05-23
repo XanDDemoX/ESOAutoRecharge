@@ -138,7 +138,7 @@ end
 local function Recharge_CombatStateChanged(eventCode, inCombat)
 	if IsPlayerDead() == true then return end
 	
-	if _settings.chargeEnabled == true  then
+	if _settings.chargeEnabled == true then
 		ChargeEquipped(true)
 	end
 	
@@ -157,7 +157,7 @@ end
 
 local function TryParsePercent(str)
 	local percent = tonumber(str)
-	if percent >= 0 and percent <= 100 then return (percent / 100) end
+	if percent ~= nil and percent >= 0 and percent <= 100 then return (percent / 100) end
 	return nil
 end
 

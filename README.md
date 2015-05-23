@@ -1,4 +1,4 @@
-ESOAutoRecharge v2.0.0
+ESOAutoRecharge v2.0.1
 =============
 
 An addon for The Elder Scrolls Online which recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
@@ -41,6 +41,8 @@ Usage
 
 Change Log
 =============
+* **Version 2.0.1**
+  * Fixed error attempting to enable / disable using slash commands.
 * **Version 2.0.0**
   * Implemented Automatic amour repair
   * Fixed potentially not searching all bag slots for items.
