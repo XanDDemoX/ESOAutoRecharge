@@ -8,7 +8,7 @@ A single repair kit will be consumed per piece of armour recharged in the order 
 Installation
 =============
 
-1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%202.0.0.zip)
+1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%202.0.1.zip)
 2. Extract or copy the "Recharge" folder into your addons folder:
 
 "Documents\Elder Scrolls Online\live\Addons"
