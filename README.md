@@ -1,4 +1,4 @@
-ESOAutoRecharge v2.0.2
+ESOAutoRecharge v2.0.3
 =============
 
 An addon for The Elder Scrolls Online which recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
@@ -8,7 +8,7 @@ A single repair kit will be consumed per piece of armour recharged in the order 
 Installation
 =============
 
-1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%202.0.2.zip)
+1. [Download the latest version](https://raw.githubusercontent.com/XanDDemoX/ESOAutoRecharge/master/zips/Auto%20Recharge%202.0.3.zip)
 2. Extract or copy the "Recharge" folder into your addons folder:
 
 "Documents\Elder Scrolls Online\live\Addons"
@@ -41,6 +41,8 @@ Usage
 
 Change Log
 =============
+* **Version 2.0.3**
+  * Fixed Off Hand slots not being checked for repair.
 * **Version 2.0.2**
   * Renamed Readme.txt to README to prevent ESO detecting it as an addon
 * **Version 2.0.1**

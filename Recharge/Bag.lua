@@ -2,21 +2,16 @@
 local Bag = {}
 
 local function GetBagItems(bagId,func)
-	local size = GetBagSize(bagId)
-
+	
+	local cache = SHARED_INVENTORY:GenerateFullSlotData(nil, bagId)
 	local tbl = {}
-	
-	local v
-	
-	for i =1, size do
-	
-		v = func(i)
-		
+	for slotId,data in pairs(cache) do 
+		v = func(data.slotIndex) 
 		if v ~= nil then 
 			table.insert(tbl,v)
-		end
+		end 
+	end 
 	
-	end
 	return tbl
 end
 
@@ -61,10 +56,32 @@ local function GetRepairKits(bagId)
 	return tbl
 end 
 
+local function GetItemsByType(bagId,types)
+	
+	local tbl = GetBagItems(bagId,function(i)
+		
+		local itemType = GetItemType(bagId,i)
+		
+		for i,t in ipairs(types) do
+			if itemType == t then
+				return {
+					bag = bagId,
+					index = i,
+					itemType=itemType
+				}
+			end
+		end
+	
+	end)
+	
+	return tbl
+end
+
 local b = Bag 
 
 b.GetBagItems = GetBagItems
 b.GetSoulGems = GetSoulGems
 b.GetRepairKits = GetRepairKits
+b.GetItemsByType = GetItemsByType
 
 Recharge.Bag = b 
