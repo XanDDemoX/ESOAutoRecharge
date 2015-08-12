@@ -161,6 +161,103 @@ local function TryParsePercent(str)
 	return nil
 end
 
+-- >> Baertram
+--Build the addon's LAM 2.0 settings menu
+--Create the settings panel object of libAddonMenu 2.0
+local LAM 		 = LibStub('LibAddonMenu-2.0')
+local function BuildAddonMenu()
+
+	local panelData = {
+		type 				= 'panel',
+		name 				= 'Auto Recharge',
+		displayName 		= 'Auto Recharge',
+		author 				= 'XanDDemoX',
+		version 			= '2.0.4',
+		registerForRefresh 	= true,
+		registerForDefaults = true,
+		slashCommand = "/rcs",
+	}
+	LAM:RegisterAddonPanel("Auto Recharge", panelData)
+
+	local optionsTable =
+    {	-- BEGIN OF OPTIONS TABLE
+
+		--Description of the addon
+		{
+			type = "description",
+			text = "Recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat",
+		},
+		--Automatic recharging
+		{
+        	type = "header",
+        	name = "Automatic charging",
+        },
+		{
+			type = "checkbox",
+			name = "Automatic weapon recharge",
+			tooltip = "Automatically recharge your weapons upon entering/leaving combat. Consumes 1 soul gem per weapon charged.",
+			getFunc = function() return _settings.chargeEnabled end,
+			setFunc = function(value) _settings.chargeEnabled = value end,
+            default = _settings.chargeEnabled,
+            width="half",
+		},
+ 		{
+			type = "slider",
+			name = "Minimum charge percentage",
+			tooltip = "Set a value between 0% and 99%. Weapons will be recharged when the current charge percentage is equal to or lower than this value.",
+			min = 0,
+			max = 99,
+			getFunc = function() return (_settings.minChargePercent*100) end,
+			setFunc = function(percent)
+					local percentage = TryParsePercent(percent)
+					if percentage ~= nil and percentage >= 0 and percentage < 1 then
+						_settings.minChargePercent = percentage
+	                    println("Minimum charge: ",tostring(percent),"%")
+                    end
+ 				end,
+            width="half",
+			default = (_settings.minChargePercent*100),
+            disabled = function() return not _settings.chargeEnabled end,
+		},
+		--Automatic repairing
+		{
+        	type = "header",
+        	name = "Automatic repairing",
+        },
+		{
+			type = "checkbox",
+			name = "Automatic armour repair",
+			tooltip = "Automatically repair your armour upon entering/leaving combat. Consumes 1 repair kit per item repaired.",
+			getFunc = function() return _settings.repairEnabled end,
+			setFunc = function(value) _settings.repairEnabled = value end,
+            default = _settings.repairEnabled,
+            width="half",
+		},
+ 		{
+			type = "slider",
+			name = "Minimum condition percentage",
+			tooltip = "Set a value between 0% and 99%. Armour will be repaired when the current condition percentage is equal to or lower than this value.",
+			min = 0,
+			max = 99,
+			getFunc = function() return (_settings.minConditionPercent*100) end,
+			setFunc = function(percent)
+					local percentage = TryParsePercent(percent)
+					if percentage ~= nil and percentage >= 0 and percentage < 1 then
+						_settings.minConditionPercent = percentage
+						println("Minimum condition: ",tostring(percent),"%")
+                    end
+ 				end,
+            width="half",
+			default = (_settings.minConditionPercent*100),
+            disabled = function() return not _settings.repairEnabled end,
+		},
+
+    } -- END OF OPTIONS TABLE
+	LAM:RegisterOptionControls("Auto Recharge", optionsTable)
+
+end
+-- << Baertram
+
 local function Initialise()
 
 	EVENT_MANAGER:RegisterForEvent("Recharge_CombatStateChanged",EVENT_PLAYER_COMBAT_STATE,Recharge_CombatStateChanged)
@@ -172,11 +269,11 @@ local function Initialise()
 			ChargeEquipped()
 		else
 			local percent = TryParsePercent(arg)
-			
+
 			if percent ~= nil and percent >= 0 and percent < 1 then
 				_settings.minChargePercent = percent
 				println("Minimum charge: ",tostring(percent * 100),"%")
-			elseif percent ~= nil then 
+			elseif percent ~= nil then
 				println("Invalid percentage: ",tostring(percent * 100)," range: 0-99.")
 			else
 				 local enabled = TryParseOnOff(arg)
@@ -188,7 +285,7 @@ local function Initialise()
 		end 
 
 	end
-	
+
 	SLASH_COMMANDS["/rp"] = function(arg)
 		arg = trim(arg)
 		if arg == nil or arg == "" then
@@ -200,7 +297,7 @@ local function Initialise()
 			if percent ~= nil and percent >= 0 and percent < 1 then
 				_settings.minConditionPercent = percent
 				println("Minimum condition: ",tostring(percent * 100),"%")
-			elseif percent ~= nil then 
+			elseif percent ~= nil then
 				println("Invalid percentage: ",tostring(percent * 100)," range: 0-99.")
 			else
 				local enabled = TryParseOnOff(arg)
@@ -220,9 +317,11 @@ local function Recharge_Loaded(eventCode, addOnName)
 	if(addOnName ~= "Recharge") then
         return
     end
-	
+
+	BuildAddonMenu()
+
 	_settings = ZO_SavedVars:New("AutoRecharge_SavedVariables", "3", "", _settings, nil)
-	
+
 	Initialise()
 	
 end
