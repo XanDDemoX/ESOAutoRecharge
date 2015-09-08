@@ -1,4 +1,4 @@
-ESOAutoRecharge v2.0.4
+ESOAutoRecharge v2.0.5
 By XanDDemoX
 
 Recharges and repairs your equipped weapons and amour automatically upon entering and leaving combat. 
@@ -38,6 +38,10 @@ Usage
 
 Change Log
 
+Version 2.0.5
+
+	- Updated Api version to 100012
+	
 Version 2.0.4
 
 	- Added settings menu implementation by Baertram.

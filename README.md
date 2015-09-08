@@ -43,6 +43,8 @@ Usage
 
 Change Log
 =============
+* **Version 2.0.5**
+  * Updated Api version to 100012
 * **Version 2.0.4**
   * Added settings menu implementation by Baertram.
 * **Version 2.0.3**
